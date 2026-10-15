@@ -1,0 +1,60 @@
+name: Device report
+description: Tell us how it works with your phone and processor, good or bad.
+body:
+  - type: markdown
+    attributes:
+      value: Every phone and processor combination helps, including ones where everything works. The app is for processors that stream straight to Android (Nucleus 7, Nucleus 8, Kanso 2); streaming through the Phone Clip or Mini Mic is out of scope.
+  - type: input
+    id: phone
+    attributes:
+      label: Phone model and Android version
+      placeholder: Pixel 8, Android 17
+    validations:
+      required: true
+  - type: input
+    id: processor
+    attributes:
+      label: Sound processor model and firmware version
+      placeholder: Kanso 2, firmware …
+    validations:
+      required: true
+  - type: dropdown
+    id: streaming
+    attributes:
+      label: Does streaming use ASHA or LE Audio?
+      description: On Android 13+ with LE Audio switched on for the processor, it may use LE Audio.
+      options:
+        - ASHA
+        - LE Audio
+        - Not sure
+    validations:
+      required: true
+  - type: dropdown
+    id: without-guard
+    attributes:
+      label: Without the guard, after toggling Bluetooth off and on, how long until streaming comes back?
+      options:
+        - Under 10 seconds
+        - 10 seconds to a minute
+        - More than a minute
+        - It doesn't come back until I reopen the official app
+        - Didn't test
+    validations:
+      required: true
+  - type: dropdown
+    id: with-guard
+    attributes:
+      label: With the guard running, after the same toggle?
+      options:
+        - Under 15 seconds
+        - 15 seconds to a minute
+        - More than a minute
+        - It doesn't come back
+        - Didn't test
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else
+      description: Other Bluetooth devices connected at the time, battery settings, the guard log if something looked off.

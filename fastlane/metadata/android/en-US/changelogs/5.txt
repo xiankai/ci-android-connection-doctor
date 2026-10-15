@@ -1,0 +1,6 @@
+First public release.
+• Gets phone streaming (ASHA) back after a Bluetooth drop, usually within 10 to 20 seconds
+• Starts by itself when the processor connects, and stops once streaming holds
+• Hand off the processor to another device and back from the notification
+• Step-by-step Shizuku setup on the phone, and recovery advice when Shizuku isn't running
+• Re-allows streaming on start if an earlier run ended while it was paused

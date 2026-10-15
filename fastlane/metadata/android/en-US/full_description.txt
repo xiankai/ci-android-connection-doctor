@@ -1,0 +1,25 @@
+<p>An unofficial helper for people who stream phone audio to a Cochlear Nucleus or Kanso sound processor over Android's hearing-aid streaming (ASHA).</p>
+
+<p>After a Bluetooth drop (walking out of range, Bluetooth switched off and on, a reboot), Android tries to reconnect ASHA on its own, and the processor keeps dropping those connections until the official app has set up its own link first. Streaming can take minutes to come back, or not come back at all.</p>
+
+<p>This app runs a small guard that watches the link and, when streaming drops:</p>
+<ul>
+<li>pauses ASHA so it stops racing the official app,</li>
+<li>restarts the official app if its link is missing,</li>
+<li>resumes ASHA once the link has held, and checks that streaming stays up.</li>
+</ul>
+<p>On a Pixel 8, streaming is usually back 10 to 20 seconds after the link to the processor returns. The guard can start by itself whenever the processor connects, even with the app closed, and stops once streaming holds, so it only runs while a reconnect needs it. Its notification also lets you hand the processor off to another device (a laptop, say) and take it back.</p>
+
+<p>Without Shizuku the guard can only advise: when streaming drops, a notification says what to try. The app walks you through setting up Shizuku on the phone itself, with no computer needed.</p>
+
+<p><b>What it never does:</b> it never changes volume, program or audio source, and never taps anything in the official app. It manages the Bluetooth link only.</p>
+
+<p><b>Requirements</b></p>
+<ul>
+<li>Android 12 or newer</li>
+<li>A processor that streams straight to Android: Nucleus 7, Nucleus 8 or Kanso 2. Older processors that stream through the Phone Clip or Mini Mic, such as the Nucleus 6, don't have this problem and aren't supported.</li>
+<li>The official Nucleus Smart app installed and paired with your processor</li>
+<li><a href="https://shizuku.rikka.app/">Shizuku</a>, started over wireless debugging (needed again after every reboot). Pausing and resuming ASHA is a privileged call that ordinary apps can't make.</li>
+</ul>
+
+<p><b>Disclaimer:</b> this app is not made by, affiliated with or endorsed by Cochlear Ltd. It is not a medical device. Use it at your own risk; it never replaces your clinic or the official app.</p>

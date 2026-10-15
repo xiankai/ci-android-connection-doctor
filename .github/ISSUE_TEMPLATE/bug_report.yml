@@ -1,0 +1,98 @@
+name: Bug report
+description: Streaming didn't come back, the guard misbehaved, or the app crashed.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This app is unofficial and not a medical device. For anything about the processor itself, contact your clinic or Cochlear.
+        Please check the README's Troubleshooting section first, especially the battery setting for the official app.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead. Include roughly how long streaming took to come back, if it did.
+    validations:
+      required: true
+  - type: input
+    id: phone
+    attributes:
+      label: Phone model
+      placeholder: Pixel 8
+    validations:
+      required: true
+  - type: input
+    id: android
+    attributes:
+      label: Android version
+      placeholder: "17"
+    validations:
+      required: true
+  - type: input
+    id: processor
+    attributes:
+      label: Sound processor model and firmware version
+      description: Both are in the official Cochlear app, under the processor's details.
+      placeholder: Nucleus 8, firmware …
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: App versions
+      description: This app, the official Cochlear app and Shizuku. Each one is under Settings > Apps > the app.
+    validations:
+      required: true
+  - type: dropdown
+    id: shizuku
+    attributes:
+      label: Was Shizuku running when it happened?
+      options:
+        - "Yes"
+        - "No"
+        - Not sure
+    validations:
+      required: true
+  - type: dropdown
+    id: guard-running
+    attributes:
+      label: Was the guard running?
+      options:
+        - Yes, I started it
+        - Yes, it started by itself when the processor connected
+        - No, it had stopped by itself
+        - No, it wasn't running
+        - Not sure
+    validations:
+      required: true
+  - type: dropdown
+    id: trigger
+    attributes:
+      label: What dropped the connection?
+      options:
+        - Walked out of Bluetooth range and back
+        - Toggled Bluetooth off and on
+        - Phone rebooted
+        - Processor turned off and on
+        - Hand off / Back to phone
+        - Not sure
+        - Other (say in "What happened")
+    validations:
+      required: true
+  - type: dropdown
+    id: force-stop
+    attributes:
+      label: Does force-stopping and reopening the official Cochlear app bring streaming back?
+      options:
+        - "Yes"
+        - "No"
+        - Didn't try
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Guard log
+      description: Copy it from the app's Event log, or run `adb logcat -d -s AshaGuard` right after it happens.
+      render: shell
+    validations:
+      required: true
