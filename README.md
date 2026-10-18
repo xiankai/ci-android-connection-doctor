@@ -29,7 +29,7 @@ The main screen shows one status ("Phone sound is on", "Reconnecting…", "Waiti
 
 The guard stops by itself, and its notification goes away, once streaming has held for 10 seconds, or after a minute with no link to the processor. While handed off, it keeps running so **Bring sound back to phone** stays in the notification.
 
-Shizuku stops whenever the phone reboots. Start it again after every reboot, or the guard can't act. With **Fix phone sound automatically** on, the guard comes up by itself after a reboot. While the guard is running, it notices Shizuku coming back within a second. Otherwise, once Shizuku is running again, tap **Refresh** under **Details** in this app.
+Shizuku stops whenever the phone reboots, and also when wireless debugging switches off unless USB debugging is on (see below). Start it again after either, or the guard can't act. With **Fix phone sound automatically** on, the guard comes up by itself after a reboot. While the guard is running, it notices Shizuku coming back within a second. Otherwise, once Shizuku is running again, tap **Refresh** under **Details** in this app.
 
 ## Starting Shizuku without a computer
 On Android 11 or newer, Shizuku pairs and starts on the phone itself through wireless debugging. No computer or USB cable is needed.
@@ -42,26 +42,27 @@ Wireless debugging needs the phone connected to a Wi-Fi network, but any network
 1. Turn on Developer options: Settings > About phone, tap **Build number** seven times.
 
    <img src="docs/shizuku/build-number.png" width="360" alt="Build number in About phone">
-2. Join any Wi-Fi network.
-3. Open Settings > System > Developer options and tap the words **Wireless debugging**, not only its switch, to open its page.
+2. In Settings > System > Developer options, turn on **USB debugging**. Without it, Shizuku stops as soon as wireless debugging switches off.
+3. Join any Wi-Fi network.
+4. Open Settings > System > Developer options and tap the words **Wireless debugging**, not only its switch, to open its page.
 
    <img src="docs/shizuku/developer-options.png" width="360" alt="Wireless debugging in Developer options">
-4. Turn on **Use wireless debugging**. Tap **OK** on "Allow wireless debugging?", then **Allow** on "Allow wireless debugging on this network?".
+5. Turn on **Use wireless debugging**. Tap **OK** on "Allow wireless debugging?", then **Allow** on "Allow wireless debugging on this network?".
 
    <img src="docs/shizuku/allow-wireless-debugging.png" width="360" alt="Allow wireless debugging? with OK">
    <img src="docs/shizuku/allow-on-this-network.png" width="360" alt="Allow wireless debugging on this network? with Allow">
-5. Open Shizuku and tap **Pairing** under "Start via Wireless debugging". Shizuku shows its own pairing steps.
+6. Open Shizuku and tap **Pairing** under "Start via Wireless debugging". Shizuku shows its own pairing steps.
 
    <img src="docs/shizuku/shizuku-main.png" width="360" alt="Shizuku with Pairing and Start">
    <img src="docs/shizuku/shizuku-pairing-guide.png" width="360" alt="Shizuku pairing steps">
-6. Go back to the Wireless debugging page and tap **Pair device with pairing code**. Leave the code on screen.
+7. Go back to the Wireless debugging page and tap **Pair device with pairing code**. Leave the code on screen.
 
    <img src="docs/shizuku/wireless-debugging.png" width="360" alt="Wireless debugging page with Pair device with pairing code">
    <img src="docs/shizuku/pair-with-code.png" width="360" alt="Pair with device dialog showing the six-digit code">
-7. Pull down the notifications. Shizuku's says "Pairing service found": tap **Enter pairing code** and type the six digits.
+8. Pull down the notifications. Shizuku's says "Pairing service found": tap **Enter pairing code** and type the six digits.
 
    <img src="docs/shizuku/shizuku-pairing-notification.png" width="360" alt="Shizuku notification: Pairing service found, Enter pairing code">
-8. In Shizuku, tap **Start**. Then open this app and tap **Grant permission** in the setup steps.
+9. In Shizuku, tap **Start**. Then open this app and tap **Grant permission** in the setup steps.
 
 **After every restart:**
 1. Join any Wi-Fi network.
@@ -71,9 +72,9 @@ Wireless debugging needs the phone connected to a Wi-Fi network, but any network
 
    <img src="docs/shizuku/app-not-running.png" width="360" alt="Shizuku card: Not running">
    <img src="docs/shizuku/app-ready.png" width="360" alt="Shizuku card: Ready">
-5. Turn Wireless debugging off and leave the Wi-Fi if you like. Shizuku keeps running until the next restart.
+5. Turn Wireless debugging off and leave the Wi-Fi if you like. With USB debugging on, Shizuku keeps running until the next restart.
 
-Don't turn off USB debugging or Developer options while you rely on the guard: that stops Shizuku.
+Shizuku runs inside Android's debugging service, and Android stops that service once neither USB debugging nor Wireless debugging is on. Shizuku stops with it. That happens when the phone leaves Wi-Fi with USB debugging off, since Wireless debugging then switches itself off, and when Developer options are turned off.
 
 Tip: Settings > System > Developer options > Quick settings developer tiles > **Wireless debugging** adds a Quick Settings tile that turns it on in one tap.
 
@@ -91,7 +92,7 @@ The guard still runs without Shizuku, but it can only watch and advise, because 
 ## Troubleshooting
 - **Set the official Cochlear app's battery usage to Unrestricted** (Settings > Apps > the Cochlear app > App battery usage). Many dropouts stop with that alone. Do the same for this app.
 - **Streaming stays off after a reboot.** When you restart the phone, a running guard switches streaming back on just before it shuts down. If the phone went down without that (a crash, a dead battery, or the guard stopped during a hand-off), streaming stays off, and a notification says so. Settings can't switch it back on: **Connect** on the processor's page skips a paused profile. Start Shizuku, then start the guard, and it switches streaming back on. If the app or Shizuku dies while streaming is paused, streaming is switched back on by itself. Stopping the guard while Shizuku isn't running can't switch it back on either; a notification says so.
-- **The main screen says "The helper app has stopped".** Shizuku stopped, usually after a reboot. Tap **Start the helper app** and follow the steps.
+- **The main screen says "The helper app has stopped".** Shizuku stopped, usually after a reboot, or after leaving Wi-Fi with USB debugging off. Tap **Start the helper app** and follow the steps, and turn on USB debugging in Developer options so it survives leaving Wi-Fi.
 - **The guard didn't start by itself after a restart.** Android can't wake the app until the phone has been unlocked once. Once you unlock it, the guard starts if the processor is connected, or the next time it connects.
 - **The official app pops up on screen.** Restarting it is how the guard gets its link back; it currently brings the app to the foreground.
 
