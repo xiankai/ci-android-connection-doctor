@@ -1,12 +1,7 @@
 package io.github.xiankai.ciconnectiondoctor.ui
 
-import android.app.Activity
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.IntentSenderRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -19,7 +14,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -27,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -54,7 +47,6 @@ fun HomeScreen(viewModel: GuardViewModel) {
     val publicLink by viewModel.publicLink.collectAsState()
     val guideStep by viewModel.guideStep.collectAsState()
     val pausedByGuard by viewModel.pausedByGuard.collectAsState()
-    val autoFix by viewModel.startOnConnect.collectAsState()
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     LaunchedEffect(lifecycle, target) {
@@ -75,7 +67,7 @@ fun HomeScreen(viewModel: GuardViewModel) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.app_name)) },
+                title = { Text(stringResource(R.string.home_title)) },
                 actions = { TextButton(onClick = viewModel::openDetails) { Text(stringResource(R.string.home_details)) } },
             )
         },
@@ -89,7 +81,6 @@ fun HomeScreen(viewModel: GuardViewModel) {
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
             StatusPanel(homeText(status), status.action, viewModel::perform)
-            if (target != null) AutoFixSwitch(autoFix, viewModel)
         }
     }
 }
@@ -124,28 +115,5 @@ private fun toneColors(tone: Tone): Pair<Color, Color> {
         Tone.Busy -> colors.secondaryContainer to colors.onSecondaryContainer
         Tone.NeedsYou -> colors.errorContainer to colors.onErrorContainer
         Tone.Neutral -> colors.surfaceVariant to colors.onSurfaceVariant
-    }
-}
-
-@Composable
-private fun AutoFixSwitch(enabled: Boolean, viewModel: GuardViewModel) {
-    val association = rememberLauncherForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {
-        viewModel.onAssociationResult(it.resultCode == Activity.RESULT_OK)
-    }
-    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Column(modifier = Modifier.weight(1f).padding(end = 16.dp)) {
-            Text(stringResource(R.string.auto_fix), style = MaterialTheme.typography.titleMedium)
-            Text(
-                stringResource(R.string.auto_fix_detail),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-        Switch(
-            checked = enabled,
-            onCheckedChange = { checked ->
-                viewModel.setAutoFix(checked) { sender -> association.launch(IntentSenderRequest.Builder(sender).build()) }
-            },
-        )
     }
 }

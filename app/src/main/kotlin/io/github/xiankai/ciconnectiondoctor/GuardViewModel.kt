@@ -86,6 +86,11 @@ class GuardViewModel(application: Application) : AndroidViewModel(application) {
         _showSetup.value = false
     }
 
+    fun closeSetupToDetails() {
+        _showSetup.value = false
+        _showDetails.value = true
+    }
+
     fun openDetails() {
         _showDetails.value = true
     }

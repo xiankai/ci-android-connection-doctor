@@ -15,7 +15,7 @@ class SetupGuideTest {
         shizukuRunning = false,
         permissionGranted = false,
         processorPicked = false,
-        guardRunning = false,
+        autoStartOn = false,
     )
 
     private val afterRestart = freshPhone.copy(
@@ -23,7 +23,7 @@ class SetupGuideTest {
         developerOptionsOn = true,
         permissionGranted = true,
         processorPicked = true,
-        guardRunning = true,
+        autoStartOn = true,
     )
 
     private fun current(state: SetupState): SetupStep? =
@@ -35,7 +35,7 @@ class SetupGuideTest {
     @Test
     fun freshPhoneStartsWithInstallingShizuku() {
         assertEquals(SetupStep.InstallShizuku, current(freshPhone))
-        assertEquals(StepStatus.Todo, statusOf(freshPhone, SetupStep.StartGuard))
+        assertEquals(StepStatus.Todo, statusOf(freshPhone, SetupStep.AutoStart))
     }
 
     @Test
@@ -50,7 +50,7 @@ class SetupGuideTest {
             { it.copy(shizukuRunning = true) },
             { it.copy(permissionGranted = true) },
             { it.copy(processorPicked = true) },
-            { it.copy(guardRunning = true) },
+            { it.copy(autoStartOn = true) },
         )
         finish.forEach { step ->
             seen += current(state)!!

@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">CI Android Connection Doctor</string>
 
+    <string name="home_title">Phone sound</string>
     <string name="home_details">Details</string>
 
     <string name="headline_pick_processor">Choose your sound processor</string>
@@ -32,8 +33,6 @@
     <string name="action_start_helper">Start the helper app</string>
     <string name="action_fix_now">Fix phone sound</string>
 
-    <string name="auto_fix">Fix phone sound automatically</string>
-    <string name="auto_fix_detail">Starts by itself when your processor connects or the phone restarts.</string>
 
     <string name="hand_off">Use with another device</string>
     <string name="channel_fixing">Fixing phone sound</string>

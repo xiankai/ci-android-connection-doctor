@@ -1,6 +1,6 @@
 # CI Android Connection Doctor
 
-An unofficial Android helper that gets phone audio streaming (ASHA) to a Cochlear Nucleus or Kanso sound processor back within seconds after Bluetooth drops, plus one-tap hand-off to another device. With **Fix phone sound automatically** on, it starts by itself when the processor comes back and stops once streaming holds.
+An unofficial Android helper that gets phone audio streaming (ASHA) to a Cochlear Nucleus or Kanso sound processor back within seconds after Bluetooth drops, plus one-tap hand-off to another device. Once set up, it starts by itself when the processor comes back and stops once streaming holds.
 
 > [!WARNING]
 > This app is not made by, affiliated with or endorsed by Cochlear Ltd. It is not a medical device. Use it at your own risk; it never replaces your clinic, your audiologist or the official Cochlear app.
@@ -21,15 +21,15 @@ It manages the Bluetooth link only. It never changes volume, program or audio so
 
 ## Setup
 1. Install [Shizuku](https://shizuku.rikka.app/), then pair and start it (see [Starting Shizuku without a computer](#starting-shizuku-without-a-computer)). Pausing and resuming ASHA needs `BLUETOOTH_PRIVILEGED`, which ordinary apps can't hold; Shizuku lends the app adb-shell rights for those calls.
-2. Open this app and allow Bluetooth and notifications. The setup steps open by themselves while Shizuku isn't installed and end with allowing this app in Shizuku.
+2. Open this app and allow Bluetooth and notifications. The setup steps open by themselves while Shizuku isn't installed.
 3. If the main screen says **Choose your sound processor**, tap **Choose processor** and pick it under **Sound processor**.
-4. Turn on **Fix phone sound automatically**. Android asks once to link the app to the processor; then the guard starts by itself whenever the processor connects or the phone restarts, even with the app closed. After a phone restart this starts working once you unlock the phone.
+4. Finish the last setup step, **Let this app start by itself**: tap **Turn on**, then **Allow** when Android asks to link the app to the processor. From then on the guard starts by itself whenever the processor connects or the phone restarts, even with the app closed. After a phone restart this starts working once you unlock the phone.
 
 The main screen shows one status ("Phone sound is on", "Reconnecting…", "Waiting for your processor") and a button only when there is something to do. Everything else (Shizuku, the processor picker, Start and Stop, hand-off, the event log) is under **Details**. While the guard runs, its notification shows the same status, with **Use with another device** or **Bring sound back to phone**.
 
 The guard stops by itself, and its notification goes away, once streaming has held for 10 seconds, or after a minute with no link to the processor. While handed off, it keeps running so **Bring sound back to phone** stays in the notification.
 
-Shizuku stops whenever the phone reboots, and also when wireless debugging switches off unless USB debugging is on (see below). Start it again after either, or the guard can't act. With **Fix phone sound automatically** on, the guard comes up by itself after a reboot. While the guard is running, it notices Shizuku coming back within a second. Otherwise, once Shizuku is running again, tap **Refresh** under **Details** in this app.
+Shizuku stops whenever the phone reboots, and also when wireless debugging switches off unless USB debugging is on (see below). Start it again after either, or the guard can't act. With starting by itself on, the guard comes up by itself after a reboot. While the guard is running, it notices Shizuku coming back within a second. Otherwise, once Shizuku is running again, tap **Refresh** under **Details** in this app.
 
 ## Starting Shizuku without a computer
 On Android 11 or newer, Shizuku pairs and starts on the phone itself through wireless debugging. No computer or USB cable is needed.

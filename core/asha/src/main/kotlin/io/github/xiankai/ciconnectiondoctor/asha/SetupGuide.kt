@@ -8,7 +8,7 @@ enum class SetupStep {
     StartShizuku,
     GrantPermission,
     PickProcessor,
-    StartGuard,
+    AutoStart,
 }
 
 enum class StepStatus { Done, Current, Todo, Unknown }
@@ -23,7 +23,7 @@ data class SetupState(
     val shizukuRunning: Boolean,
     val permissionGranted: Boolean,
     val processorPicked: Boolean,
-    val guardRunning: Boolean,
+    val autoStartOn: Boolean,
 )
 
 object SetupGuide {
@@ -51,7 +51,7 @@ object SetupGuide {
         SetupStep.StartShizuku -> state.shizukuRunning
         SetupStep.GrantPermission -> state.shizukuRunning && state.permissionGranted
         SetupStep.PickProcessor -> state.processorPicked
-        SetupStep.StartGuard -> state.guardRunning
+        SetupStep.AutoStart -> state.autoStartOn
     }
 
     private fun Boolean?.orDoneOnceRunning(state: SetupState): Boolean? = if (state.shizukuRunning) true else this

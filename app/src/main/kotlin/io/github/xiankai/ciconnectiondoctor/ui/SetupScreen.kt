@@ -1,7 +1,12 @@
 package io.github.xiankai.ciconnectiondoctor.ui
 
+import android.app.Activity
+import android.content.IntentSender
 import android.provider.Settings
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -79,13 +84,13 @@ private fun setupText(step: SetupStep): SetupText = when (step) {
     )
     SetupStep.PickProcessor -> SetupText(
         "Pick your sound processor",
-        "Choose it under Sound processor on the main screen.",
-        "Go to main screen",
+        "Choose it from the list under Sound processor.",
+        "Open the list",
     )
-    SetupStep.StartGuard -> SetupText(
-        "Check phone sound",
-        "A notification stays up while this app checks.",
-        "Check now",
+    SetupStep.AutoStart -> SetupText(
+        "Let this app start by itself",
+        "Then it brings phone sound back whenever your processor connects or the phone restarts. Android asks once to link this app to your processor: tap Allow.",
+        "Turn on",
     )
 }
 
@@ -93,7 +98,7 @@ private fun setupState(
     device: DeviceSetup,
     privileged: PrivilegedBridge.Status,
     processorPicked: Boolean,
-    guardRunning: Boolean,
+    autoStartOn: Boolean,
 ) = SetupState(
     shizukuInstalled = device.shizukuInstalled,
     developerOptionsOn = device.developerOptionsOn,
@@ -102,7 +107,7 @@ private fun setupState(
     shizukuRunning = privileged != PrivilegedBridge.Status.ShizukuNotRunning,
     permissionGranted = privileged == PrivilegedBridge.Status.Connecting || privileged == PrivilegedBridge.Status.Ready,
     processorPicked = processorPicked,
-    guardRunning = guardRunning,
+    autoStartOn = autoStartOn,
     )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -111,8 +116,8 @@ fun SetupScreen(viewModel: GuardViewModel) {
     val device by viewModel.device.collectAsState()
     val privileged by viewModel.privileged.collectAsState()
     val target by viewModel.target.collectAsState()
-    val guard by viewModel.guard.collectAsState()
-    val state = setupState(device, privileged, target != null, guard.running)
+    val autoStartOn by viewModel.startOnConnect.collectAsState()
+    val state = setupState(device, privileged, target != null, autoStartOn)
     val items = SetupGuide.items(state)
 
     BackHandler(onBack = viewModel::closeSetup)
@@ -194,13 +199,17 @@ private fun StepCard(item: SetupItem, viewModel: GuardViewModel) {
 
 @Composable
 private fun StepActions(step: SetupStep, text: SetupText, viewModel: GuardViewModel) {
+    val association = rememberLauncherForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {
+        viewModel.onAssociationResult(it.resultCode == Activity.RESULT_OK)
+    }
+    val launchAssociation = { sender: IntentSender -> association.launch(IntentSenderRequest.Builder(sender).build()) }
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        text.action?.let { label -> Button(onClick = { act(step, viewModel) }) { Text(label) } }
+        text.action?.let { label -> Button(onClick = { act(step, viewModel, launchAssociation) }) { Text(label) } }
         if (step == SetupStep.StartShizuku) OutlinedButton(onClick = viewModel::reconnectShizuku) { Text("Refresh") }
     }
 }
 
-private fun act(step: SetupStep, viewModel: GuardViewModel) {
+private fun act(step: SetupStep, viewModel: GuardViewModel, launchAssociation: (IntentSender) -> Unit) {
     when (step) {
         SetupStep.InstallShizuku -> viewModel.openShizukuDownload()
         SetupStep.DeveloperOptions -> viewModel.openSettings(Settings.ACTION_DEVICE_INFO_SETTINGS)
@@ -208,8 +217,8 @@ private fun act(step: SetupStep, viewModel: GuardViewModel) {
         SetupStep.WirelessDebugging -> viewModel.openSettings(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)
         SetupStep.StartShizuku -> viewModel.openShizuku()
         SetupStep.GrantPermission -> viewModel.requestShizukuPermission()
-        SetupStep.PickProcessor -> viewModel.closeSetup()
-        SetupStep.StartGuard -> viewModel.startGuard()
+        SetupStep.PickProcessor -> viewModel.closeSetupToDetails()
+        SetupStep.AutoStart -> viewModel.setAutoFix(true, launchAssociation)
     }
 }
 
