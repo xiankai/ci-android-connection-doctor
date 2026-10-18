@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import io.github.xiankai.ciconnectiondoctor.ui.GuardScreen
+import io.github.xiankai.ciconnectiondoctor.ui.HomeScreen
 import io.github.xiankai.ciconnectiondoctor.ui.theme.ConnectionDoctorTheme
 
 class MainActivity : ComponentActivity() {
@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             ConnectionDoctorTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    GuardScreen(viewModel = viewModel)
+                    HomeScreen(viewModel = viewModel)
                 }
             }
         }

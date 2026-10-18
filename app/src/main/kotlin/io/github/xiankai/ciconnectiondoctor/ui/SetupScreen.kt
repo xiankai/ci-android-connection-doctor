@@ -46,8 +46,8 @@ private data class SetupText(val title: String, val text: String, val action: St
 
 private fun setupText(step: SetupStep): SetupText = when (step) {
     SetupStep.InstallShizuku -> SetupText(
-        "Install Shizuku",
-        "Shizuku lends this app the rights it needs to pause and resume streaming. Install it, then come back here.",
+        "Install the helper app (Shizuku)",
+        "This app needs it to bring phone sound back. Install it, then come back here.",
         "Get Shizuku",
     )
     SetupStep.DeveloperOptions -> SetupText(
@@ -66,14 +66,14 @@ private fun setupText(step: SetupStep): SetupText = when (step) {
         "Open Developer options",
     )
     SetupStep.StartShizuku -> SetupText(
-        "Start Shizuku",
+        "Start the helper app (Shizuku)",
         "After a restart: open Shizuku and tap Start under \"Start via Wireless debugging\".\n\n" +
             "The first time only: tap Pairing in Shizuku, then Pair device with pairing code on the Wireless debugging page. " +
             "Type the six digits into Shizuku's notification (Enter pairing code), then tap Start.",
         "Open Shizuku",
     )
     SetupStep.GrantPermission -> SetupText(
-        "Allow this app in Shizuku",
+        "Allow this app in the helper app",
         "Tap Allow all the time. If no dialog appears, open Shizuku's app list and allow this app there.",
         "Grant permission",
     )
@@ -83,9 +83,9 @@ private fun setupText(step: SetupStep): SetupText = when (step) {
         "Go to main screen",
     )
     SetupStep.StartGuard -> SetupText(
-        "Start the guard",
-        "A notification stays up while it runs.",
-        "Start guard",
+        "Check phone sound",
+        "A notification stays up while this app checks.",
+        "Check now",
     )
 }
 
@@ -151,7 +151,7 @@ private fun AllSetCard(viewModel: GuardViewModel) {
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("All set: the guard is running", style = MaterialTheme.typography.titleMedium)
+            Text("All set", style = MaterialTheme.typography.titleMedium)
             Text(
                 "You can turn wireless debugging off and leave the Wi-Fi. Shizuku keeps running until the phone restarts. " +
                     "Don't turn off USB debugging or Developer options: that stops Shizuku.",

@@ -9,8 +9,12 @@ import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.provider.Settings
 import androidx.lifecycle.AndroidViewModel
 import io.github.xiankai.ciconnectiondoctor.asha.GuideStep
+import io.github.xiankai.ciconnectiondoctor.asha.HomeAction
+import io.github.xiankai.ciconnectiondoctor.asha.PublicLinkState
+import io.github.xiankai.ciconnectiondoctor.guard.AshaPauseFlag
 import io.github.xiankai.ciconnectiondoctor.guard.AshaGuardService
 import io.github.xiankai.ciconnectiondoctor.guard.Guard
 import io.github.xiankai.ciconnectiondoctor.guard.GuardState
@@ -19,14 +23,18 @@ import io.github.xiankai.ciconnectiondoctor.guard.TargetStore
 import io.github.xiankai.ciconnectiondoctor.guide.DeviceSetup
 import io.github.xiankai.ciconnectiondoctor.guide.GuideStepActivity
 import io.github.xiankai.ciconnectiondoctor.guide.ManualGuideRunner
+import io.github.xiankai.ciconnectiondoctor.guide.PublicLinkReader
 import io.github.xiankai.ciconnectiondoctor.guide.SHIZUKU_DOWNLOAD_URL
 import io.github.xiankai.ciconnectiondoctor.guide.SetupProbe
 import io.github.xiankai.ciconnectiondoctor.privileged.PrivilegedBridge
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 data class BondedDevice(val name: String, val address: String)
+
+private const val LINK_POLL_MS = 1_000L
 
 class GuardViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -35,6 +43,10 @@ class GuardViewModel(application: Application) : AndroidViewModel(application) {
     val guard: StateFlow<GuardState> = Guard.state
     val privileged: StateFlow<PrivilegedBridge.Status> = PrivilegedBridge.status
     val guideStep: StateFlow<GuideStep?> = ManualGuideRunner.step
+    val pausedByGuard: StateFlow<Boolean> = AshaPauseFlag.paused
+
+    private val _publicLink = MutableStateFlow<PublicLinkState?>(null)
+    val publicLink: StateFlow<PublicLinkState?> = _publicLink.asStateFlow()
 
     private val _target = MutableStateFlow(targetStore.address)
     val target: StateFlow<String?> = _target.asStateFlow()
@@ -54,6 +66,9 @@ class GuardViewModel(application: Application) : AndroidViewModel(application) {
     private val _showSetup = MutableStateFlow(false)
     val showSetup: StateFlow<Boolean> = _showSetup.asStateFlow()
 
+    private val _showDetails = MutableStateFlow(false)
+    val showDetails: StateFlow<Boolean> = _showDetails.asStateFlow()
+
     init {
         refresh()
     }
@@ -69,6 +84,35 @@ class GuardViewModel(application: Application) : AndroidViewModel(application) {
 
     fun closeSetup() {
         _showSetup.value = false
+    }
+
+    fun openDetails() {
+        _showDetails.value = true
+    }
+
+    fun closeDetails() {
+        _showDetails.value = false
+    }
+
+    suspend fun watchLink(address: String) {
+        val reader = runCatching { PublicLinkReader(getApplication(), address) }.getOrNull() ?: return
+        try {
+            while (true) {
+                _publicLink.value = runCatching { reader.read() }.getOrNull()
+                delay(LINK_POLL_MS)
+            }
+        } finally {
+            reader.close()
+        }
+    }
+
+    fun perform(action: HomeAction) = when (action) {
+        HomeAction.PickProcessor -> openDetails()
+        HomeAction.BringSoundBack -> backToPhone()
+        HomeAction.TurnOnBluetooth -> openSettings(Settings.ACTION_BLUETOOTH_SETTINGS)
+        HomeAction.OpenProcessorPage -> openGuideStep(GuideStep.ConnectStreaming)
+        HomeAction.StartHelper -> openSetup()
+        HomeAction.FixNow -> startGuard()
     }
 
     fun openShizuku() = launchExternal(SetupProbe.shizukuLaunchIntent(getApplication()))
@@ -138,6 +182,11 @@ class GuardViewModel(application: Application) : AndroidViewModel(application) {
     private fun saveStartOnConnect(enabled: Boolean) {
         targetStore.startOnConnect = enabled
         _startOnConnect.value = enabled
+    }
+
+    fun setAutoFix(enabled: Boolean, launchAssociation: (IntentSender) -> Unit) {
+        setStartAtBoot(enabled)
+        setStartOnConnect(enabled, launchAssociation)
     }
 
     fun setStartAtBoot(enabled: Boolean) {

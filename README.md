@@ -1,6 +1,6 @@
 # CI Android Connection Doctor
 
-An unofficial Android helper that gets phone audio streaming (ASHA) to a Cochlear Nucleus or Kanso sound processor back within seconds after Bluetooth drops, plus one-tap hand-off to another device. With **Start when the processor connects** on, it starts by itself when the processor comes back and stops once streaming holds.
+An unofficial Android helper that gets phone audio streaming (ASHA) to a Cochlear Nucleus or Kanso sound processor back within seconds after Bluetooth drops, plus one-tap hand-off to another device. With **Fix phone sound automatically** on, it starts by itself when the processor comes back and stops once streaming holds.
 
 > [!WARNING]
 > This app is not made by, affiliated with or endorsed by Cochlear Ltd. It is not a medical device. Use it at your own risk; it never replaces your clinic, your audiologist or the official Cochlear app.
@@ -21,19 +21,20 @@ It manages the Bluetooth link only. It never changes volume, program or audio so
 
 ## Setup
 1. Install [Shizuku](https://shizuku.rikka.app/), then pair and start it (see [Starting Shizuku without a computer](#starting-shizuku-without-a-computer)). Pausing and resuming ASHA needs `BLUETOOTH_PRIVILEGED`, which ordinary apps can't hold; Shizuku lends the app adb-shell rights for those calls.
-2. Open this app, allow Bluetooth and notifications, then tap **Grant permission** under Shizuku.
-3. Pick your processor under **Sound processor**.
-4. Tap **Start guard**. A notification stays up while it runs, with **Hand off** and **Stop**.
-5. Optionally, turn on **Start when the processor connects**. Android asks once to link the app to the processor; then the guard starts by itself whenever the processor connects, even with the app closed. After a phone restart this starts working once you unlock the phone.
+2. Open this app and allow Bluetooth and notifications. The setup steps open by themselves while Shizuku isn't installed and end with allowing this app in Shizuku.
+3. If the main screen says **Choose your sound processor**, tap **Choose processor** and pick it under **Sound processor**.
+4. Turn on **Fix phone sound automatically**. Android asks once to link the app to the processor; then the guard starts by itself whenever the processor connects or the phone restarts, even with the app closed. After a phone restart this starts working once you unlock the phone.
 
-The guard stops by itself, and its notification goes away, once streaming has held for 10 seconds, or after a minute with no link to the processor. While handed off, it keeps running so **Back to phone** stays in the notification.
+The main screen shows one status ("Phone sound is on", "Reconnecting…", "Waiting for your processor") and a button only when there is something to do. Everything else (Shizuku, the processor picker, Start and Stop, hand-off, the event log) is under **Details**. While the guard runs, its notification shows the same status, with **Use with another device** or **Bring sound back to phone**.
 
-Shizuku stops whenever the phone reboots. Start it again after every reboot, or the guard can't act. With **Start the guard at boot** on, the guard comes up by itself after a reboot. While the guard is running, it notices Shizuku coming back within a second. Otherwise, once Shizuku is running again, tap **Refresh** in this app.
+The guard stops by itself, and its notification goes away, once streaming has held for 10 seconds, or after a minute with no link to the processor. While handed off, it keeps running so **Bring sound back to phone** stays in the notification.
+
+Shizuku stops whenever the phone reboots. Start it again after every reboot, or the guard can't act. With **Fix phone sound automatically** on, the guard comes up by itself after a reboot. While the guard is running, it notices Shizuku coming back within a second. Otherwise, once Shizuku is running again, tap **Refresh** under **Details** in this app.
 
 ## Starting Shizuku without a computer
 On Android 11 or newer, Shizuku pairs and starts on the phone itself through wireless debugging. No computer or USB cable is needed.
 
-The app walks you through the same steps: tap **Show steps** on the Shizuku card. It ticks off each step it can check (Shizuku installed, Wi-Fi joined, wireless debugging on, Shizuku running, permission granted) and opens the right screen for the next one. It opens by itself the first time, while Shizuku isn't installed.
+The app walks you through the same steps: tap **Start the helper app** when the main screen asks for it, or **Show me how** under **Details**. It ticks off each step it can check (Shizuku installed, Wi-Fi joined, wireless debugging on, Shizuku running, permission granted) and opens the right screen for the next one. It opens by itself the first time, while Shizuku isn't installed.
 
 Wireless debugging needs the phone connected to a Wi-Fi network, but any network works, even one with no internet: Shizuku only talks to the phone itself. A café or shop network is fine, and you can ignore its sign-in page. The phone's own hotspot doesn't count, because the phone has to be connected to Wi-Fi, not sharing it.
 
@@ -60,13 +61,13 @@ Wireless debugging needs the phone connected to a Wi-Fi network, but any network
 7. Pull down the notifications. Shizuku's says "Pairing service found": tap **Enter pairing code** and type the six digits.
 
    <img src="docs/shizuku/shizuku-pairing-notification.png" width="360" alt="Shizuku notification: Pairing service found, Enter pairing code">
-8. In Shizuku, tap **Start**. Then open this app and tap **Grant permission** under Shizuku.
+8. In Shizuku, tap **Start**. Then open this app and tap **Grant permission** in the setup steps.
 
 **After every restart:**
 1. Join any Wi-Fi network.
 2. Turn on Wireless debugging, and tap **Allow** if it asks about this network.
 3. Open Shizuku and tap **Start** under "Start via Wireless debugging".
-4. Open this app and tap **Refresh**. The Shizuku card changes from "Not running" to "Ready".
+4. Open this app and tap **Refresh** under **Details**. The Shizuku card changes from "Not running" to "Ready".
 
    <img src="docs/shizuku/app-not-running.png" width="360" alt="Shizuku card: Not running">
    <img src="docs/shizuku/app-ready.png" width="360" alt="Shizuku card: Ready">
@@ -80,17 +81,17 @@ With a USB cable and a computer, `adb shell` can start Shizuku with no Wi-Fi at 
 
 ## Without Shizuku
 The guard still runs without Shizuku, but it can only watch and advise, because pausing streaming needs Shizuku. When streaming drops, a notification says what to do:
-- **Streaming didn't reconnect:** the processor is linked but streaming isn't trying. The notification opens the processor's Bluetooth page; tap **Connect**.
-- **Streaming keeps failing:** Android keeps connecting before Nucleus Smart, and nothing in Settings can stop that: **Connect** and reopening Nucleus Smart won't help. Start Shizuku and the guard picks it up within a second and fixes it.
-- **Streaming is switched off:** the guard had paused streaming and lost Shizuku before it could switch it back on. Start Shizuku and the guard picks it up within a second and switches streaming back on.
+- **Phone sound needs one tap:** the processor is linked but streaming isn't trying. The notification opens the processor's Bluetooth page; tap **Connect**.
+- **Phone sound keeps dropping:** Android keeps connecting before Nucleus Smart, and nothing in Settings can stop that: **Connect** and reopening Nucleus Smart won't help. Start Shizuku and the guard picks it up within a second and fixes it.
+- **Phone sound is off:** the guard had paused streaming and lost Shizuku before it could switch it back on. Start Shizuku and the guard picks it up within a second and switches streaming back on.
 
 ## Hand-off
-**Hand off** pauses ASHA and stops the official app so another device (a laptop, say) can take the processor. **Back to phone** restarts the official app's link and resumes ASHA.
+**Use with another device** pauses ASHA and stops the official app so another device (a laptop, say) can take the processor. **Bring sound back to phone** restarts the official app's link and resumes ASHA.
 
 ## Troubleshooting
 - **Set the official Cochlear app's battery usage to Unrestricted** (Settings > Apps > the Cochlear app > App battery usage). Many dropouts stop with that alone. Do the same for this app.
 - **Streaming stays off after a reboot.** When you restart the phone, a running guard switches streaming back on just before it shuts down. If the phone went down without that (a crash, a dead battery, or the guard stopped during a hand-off), streaming stays off, and a notification says so. Settings can't switch it back on: **Connect** on the processor's page skips a paused profile. Start Shizuku, then start the guard, and it switches streaming back on. If the app or Shizuku dies while streaming is paused, streaming is switched back on by itself. Stopping the guard while Shizuku isn't running can't switch it back on either; a notification says so.
-- **The Shizuku card says "Not running".** Shizuku stopped, usually after a reboot. Start it again, then tap **Refresh**.
+- **The main screen says "The helper app has stopped".** Shizuku stopped, usually after a reboot. Tap **Start the helper app** and follow the steps.
 - **The guard didn't start by itself after a restart.** Android can't wake the app until the phone has been unlocked once. Once you unlock it, the guard starts if the processor is connected, or the next time it connects.
 - **The official app pops up on screen.** Restarting it is how the guard gets its link back; it currently brings the app to the foreground.
 

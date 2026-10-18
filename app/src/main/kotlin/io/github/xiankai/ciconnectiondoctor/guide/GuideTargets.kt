@@ -10,25 +10,24 @@ private const val EXTRA_DEVICE_ADDRESS = "device_address"
 private const val EXTRA_FRAGMENT_ARGS = ":settings:show_fragment_args"
 private const val ACTION_HEARING_DEVICES = "android.settings.HEARING_DEVICES_SETTINGS"
 
-const val RESTART_ROUTINE = "To start Shizuku: join any Wi-Fi, turn on wireless debugging, tap Start in Shizuku, then Refresh in this app."
-const val SHOW_STEPS = "Show steps"
+const val SHOW_STEPS = "Show me how"
 
 data class StepText(val title: String, val text: String, val action: String)
 
 fun stepText(step: GuideStep): StepText = when (step) {
     GuideStep.ConnectStreaming -> StepText(
-        "Streaming didn't reconnect",
-        "Your processor is linked but streaming isn't reconnecting. Tap Connect on its page.",
+        "Phone sound needs one tap",
+        "Open your processor's page and tap Connect.",
         "Open processor page",
     )
     GuideStep.StartShizuku -> StepText(
-        "Streaming keeps failing",
-        "Android keeps connecting before Nucleus Smart, and only the guard can stop that. Connect in Settings and reopening Nucleus Smart won't. $RESTART_ROUTINE",
+        "Phone sound keeps dropping",
+        "Start the helper app so this app can bring it back.",
         SHOW_STEPS,
     )
     GuideStep.ResumeStreaming -> StepText(
-        "Streaming is switched off",
-        "The guard paused streaming and couldn't switch it back on. Settings has no switch for it, and Connect won't bring it back. $RESTART_ROUTINE",
+        "Phone sound is off",
+        "Start the helper app to switch it back on.",
         SHOW_STEPS,
     )
 }

@@ -10,7 +10,7 @@
 </ul>
 <p>On a Pixel 8, streaming is usually back 10 to 20 seconds after the link to the processor returns. The guard can start by itself whenever the processor connects, even with the app closed, and stops once streaming holds, so it only runs while a reconnect needs it. Its notification also lets you hand the processor off to another device (a laptop, say) and take it back.</p>
 
-<p>Without Shizuku the guard can only advise: when streaming drops, a notification says what to try. The app walks you through setting up Shizuku on the phone itself, with no computer needed.</p>
+<p>Without Shizuku the app can only point you to the fix: when streaming drops, a notification says what to tap. The app walks you through setting up Shizuku on the phone itself, with no computer needed.</p>
 
 <p><b>What it never does:</b> it never changes volume, program or audio source, and never taps anything in the official app. It manages the Bluetooth link only.</p>
 

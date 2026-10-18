@@ -21,6 +21,8 @@ import io.github.xiankai.ciconnectiondoctor.guide.ManualGuideRunner
 import io.github.xiankai.ciconnectiondoctor.guide.PublicLinkReader
 import io.github.xiankai.ciconnectiondoctor.guide.stepText
 import io.github.xiankai.ciconnectiondoctor.privileged.PrivilegedBridge
+import io.github.xiankai.ciconnectiondoctor.status.currentStatus
+import io.github.xiankai.ciconnectiondoctor.status.homeText
 import io.github.xiankai.ciconnectiondoctor.asha.Mode
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -57,8 +59,8 @@ class AshaGuardService : Service() {
         )
         startForeground(NOTIFICATION_ID, buildNotification(Guard.state.value, PrivilegedBridge.status.value), ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE)
         scope.launch {
-            combine(Guard.state, PrivilegedBridge.status, ::Pair)
-                .distinctUntilChangedBy { (state, status) -> listOf(state.running, state.mode, state.phase?.let(::phaseLabel), status) }
+            combine(Guard.state, PrivilegedBridge.status, ManualGuideRunner.step, AshaPauseFlag.paused) { state, status, _, _ -> state to status }
+                .distinctUntilChangedBy { (state, status) -> listOf(notificationStatus(state, status), state.mode, status) }
                 .collect { (state, status) ->
                     getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, buildNotification(state, status))
                 }
@@ -118,7 +120,7 @@ class AshaGuardService : Service() {
             .setOngoing(true)
             .setContentIntent(open)
             .addAction(NotificationCompat.Action(0, text.action, open))
-            .addAction(NotificationCompat.Action(0, "Dismiss", actionIntent(ACTION_DISMISS_GUIDE)))
+            .addAction(NotificationCompat.Action(0, "Not now", actionIntent(ACTION_DISMISS_GUIDE)))
             .build()
         notifications.notify(GUIDE_NOTIFICATION_ID, notification)
     }
@@ -160,17 +162,15 @@ class AshaGuardService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    private fun statusText(state: GuardState, privileged: PrivilegedBridge.Status): String = when {
-        state.phase != null -> phaseLabel(state.phase)
-        privileged != PrivilegedBridge.Status.Ready -> "Shizuku not running: advice only"
-        else -> "Starting"
-    }
+    private fun notificationStatus(state: GuardState, privileged: PrivilegedBridge.Status) =
+        currentStatus(state, privileged, processorPicked = true, guideStep = ManualGuideRunner.step.value, pausedByGuard = AshaPauseFlag.paused.value)
 
     private fun buildNotification(state: GuardState, privileged: PrivilegedBridge.Status): Notification {
+        val text = homeText(notificationStatus(state, privileged))
         val modeAction = if (state.mode == Mode.HandedOff) {
-            NotificationCompat.Action(0, "Back to phone", actionIntent(ACTION_BACK_TO_PHONE))
+            NotificationCompat.Action(0, getString(R.string.action_bring_sound_back), actionIntent(ACTION_BACK_TO_PHONE))
         } else {
-            NotificationCompat.Action(0, "Hand off", actionIntent(ACTION_HAND_OFF))
+            NotificationCompat.Action(0, getString(R.string.hand_off), actionIntent(ACTION_HAND_OFF))
         }
         val openApp = PendingIntent.getActivity(
             this,
@@ -178,15 +178,15 @@ class AshaGuardService : Service() {
             Intent(this, MainActivity::class.java),
             PendingIntent.FLAG_IMMUTABLE,
         )
+        val helperReady = privileged == PrivilegedBridge.Status.Ready
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle(getString(R.string.app_name))
-            .setContentText(statusText(state, privileged))
+            .setContentTitle(getString(text.title))
+            .setContentText(text.detail?.let(::getString))
             .setSmallIcon(android.R.drawable.stat_sys_data_bluetooth)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setContentIntent(openApp)
-            .addAction(modeAction)
-            .addAction(NotificationCompat.Action(0, "Stop", actionIntent(ACTION_STOP)))
+            .apply { if (helperReady) addAction(modeAction) }
             .build()
     }
 
@@ -209,8 +209,8 @@ class AshaGuardService : Service() {
         const val ACTION_STOP = "io.github.xiankai.ciconnectiondoctor.STOP"
 
         fun createChannels(context: Context) {
-            val guard = NotificationChannel(CHANNEL_ID, "Hearing aid guard", NotificationManager.IMPORTANCE_LOW)
-            val guide = NotificationChannel(GUIDE_CHANNEL_ID, "Recovery steps", NotificationManager.IMPORTANCE_HIGH)
+            val guard = NotificationChannel(CHANNEL_ID, context.getString(R.string.channel_fixing), NotificationManager.IMPORTANCE_LOW)
+            val guide = NotificationChannel(GUIDE_CHANNEL_ID, context.getString(R.string.channel_needs_you), NotificationManager.IMPORTANCE_HIGH)
             context.getSystemService(NotificationManager::class.java).createNotificationChannels(listOf(guard, guide))
         }
 

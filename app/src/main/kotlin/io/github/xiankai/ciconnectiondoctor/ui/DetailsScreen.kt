@@ -1,6 +1,7 @@
 package io.github.xiankai.ciconnectiondoctor.ui
 
 import android.app.Activity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -35,12 +36,9 @@ import androidx.compose.ui.unit.dp
 import io.github.xiankai.ciconnectiondoctor.BondedDevice
 import io.github.xiankai.ciconnectiondoctor.GuardViewModel
 import io.github.xiankai.ciconnectiondoctor.R
-import io.github.xiankai.ciconnectiondoctor.asha.GuideStep
 import io.github.xiankai.ciconnectiondoctor.guard.GuardState
 import io.github.xiankai.ciconnectiondoctor.guard.phaseLabel
-import io.github.xiankai.ciconnectiondoctor.guide.RESTART_ROUTINE
 import io.github.xiankai.ciconnectiondoctor.guide.SHOW_STEPS
-import io.github.xiankai.ciconnectiondoctor.guide.stepText
 import io.github.xiankai.ciconnectiondoctor.privileged.PrivilegedBridge
 import io.github.xiankai.ciconnectiondoctor.asha.Mode
 import java.text.SimpleDateFormat
@@ -49,27 +47,27 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GuardScreen(viewModel: GuardViewModel) {
+fun DetailsScreen(viewModel: GuardViewModel) {
     val guard by viewModel.guard.collectAsState()
     val privileged by viewModel.privileged.collectAsState()
     val target by viewModel.target.collectAsState()
     val devices by viewModel.bondedDevices.collectAsState()
     val startAtBoot by viewModel.startAtBoot.collectAsState()
     val startOnConnect by viewModel.startOnConnect.collectAsState()
-    val guideStep by viewModel.guideStep.collectAsState()
-    val showSetup by viewModel.showSetup.collectAsState()
 
-    if (showSetup) {
-        SetupScreen(viewModel)
-        return
-    }
-
-    Scaffold(topBar = { TopAppBar(title = { Text(stringResource(R.string.app_name)) }) }) { padding ->
+    BackHandler(onBack = viewModel::closeDetails)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.home_details)) },
+                actions = { TextButton(onClick = viewModel::closeDetails) { Text("Close") } },
+            )
+        },
+    ) { padding ->
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            guideStep?.let { step -> item { GuideCard(step, viewModel) } }
             item { ShizukuCard(privileged, viewModel) }
             item { TargetCard(devices, target, viewModel::selectTarget) }
             item { StatusCard(guard, privileged) }
@@ -89,28 +87,13 @@ fun GuardScreen(viewModel: GuardViewModel) {
 }
 
 @Composable
-private fun GuideCard(step: GuideStep, viewModel: GuardViewModel) {
-    val text = stepText(step)
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(text.title, style = MaterialTheme.typography.titleMedium)
-            Text(text.text)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = { viewModel.openGuideStep(step) }) { Text(text.action) }
-                TextButton(onClick = viewModel::dismissGuide) { Text("Dismiss") }
-            }
-        }
-    }
-}
-
-@Composable
 private fun ShizukuCard(status: PrivilegedBridge.Status, viewModel: GuardViewModel) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Shizuku", style = MaterialTheme.typography.titleMedium)
+            Text("Helper app (Shizuku)", style = MaterialTheme.typography.titleMedium)
             Text(
                 when (status) {
-                    PrivilegedBridge.Status.ShizukuNotRunning -> "Not running. Until it runs, the guard can only advise. $RESTART_ROUTINE"
+                    PrivilegedBridge.Status.ShizukuNotRunning -> "Not running. Until it runs, the guard can only advise."
                     PrivilegedBridge.Status.PermissionRequired -> "Running, permission needed."
                     PrivilegedBridge.Status.Connecting -> "Starting the privileged helper…"
                     PrivilegedBridge.Status.Ready -> "Ready."
@@ -198,9 +181,9 @@ private fun Controls(
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             if (guard.mode == Mode.HandedOff) {
-                Button(onClick = viewModel::backToPhone, enabled = ready, modifier = Modifier.weight(1f)) { Text("Back to phone") }
+                Button(onClick = viewModel::backToPhone, enabled = ready, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.action_bring_sound_back)) }
             } else {
-                OutlinedButton(onClick = viewModel::handOff, enabled = ready, modifier = Modifier.weight(1f)) { Text("Hand off to another device") }
+                OutlinedButton(onClick = viewModel::handOff, enabled = ready, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.hand_off)) }
             }
         }
         OutlinedButton(onClick = viewModel::restartCochlearApp, enabled = ready, modifier = Modifier.fillMaxWidth()) {

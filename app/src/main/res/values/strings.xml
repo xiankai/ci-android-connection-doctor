@@ -1,4 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">CI Android Connection Doctor</string>
+
+    <string name="home_details">Details</string>
+
+    <string name="headline_pick_processor">Choose your sound processor</string>
+    <string name="headline_pick_processor_detail">This app needs to know which processor to look after.</string>
+    <string name="headline_handed_off">Sound is going to another device</string>
+    <string name="headline_handed_off_detail">The phone is leaving your processor free for another phone, a tablet or a laptop.</string>
+    <string name="headline_bluetooth_off">Bluetooth is off</string>
+    <string name="headline_bluetooth_off_detail">Turn it on to hear the phone through your processor.</string>
+    <string name="headline_needs_connect_tap">Phone sound needs one tap</string>
+    <string name="headline_needs_connect_tap_detail">On the next screen, tap Connect.</string>
+    <string name="headline_helper_stopped">The helper app has stopped</string>
+    <string name="headline_helper_stopped_detail">It stops every time the phone restarts. Start it again so this app can bring phone sound back.</string>
+    <string name="headline_sound_on">Phone sound is on</string>
+    <string name="headline_sound_on_detail">Calls, music and videos play through your processor.</string>
+    <string name="headline_sound_on_helper_down_detail">The helper app has stopped, so this app can\'t fix the sound if it drops. Start it again when you can.</string>
+    <string name="headline_reconnecting">Reconnecting…</string>
+    <string name="headline_reconnecting_detail">Bringing phone sound back. This usually takes under a minute.</string>
+    <string name="headline_waiting">Waiting for your processor</string>
+    <string name="headline_waiting_detail">Phone sound comes back by itself when the processor is on and near the phone.</string>
+    <string name="headline_sound_off">Phone sound isn\'t coming through</string>
+    <string name="headline_sound_off_detail">Your processor is nearby, but phone sound isn\'t reaching it.</string>
+    <string name="headline_checking">Checking…</string>
+
+    <string name="action_pick_processor">Choose processor</string>
+    <string name="action_bring_sound_back">Bring sound back to phone</string>
+    <string name="action_turn_on_bluetooth">Turn on Bluetooth</string>
+    <string name="action_open_processor_page">Open processor page</string>
+    <string name="action_start_helper">Start the helper app</string>
+    <string name="action_fix_now">Fix phone sound</string>
+
+    <string name="auto_fix">Fix phone sound automatically</string>
+    <string name="auto_fix_detail">Starts by itself when your processor connects or the phone restarts.</string>
+
+    <string name="hand_off">Use with another device</string>
+    <string name="channel_fixing">Fixing phone sound</string>
+    <string name="channel_needs_you">Needs your attention</string>
 </resources>
