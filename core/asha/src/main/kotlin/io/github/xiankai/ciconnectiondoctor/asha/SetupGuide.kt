@@ -36,6 +36,8 @@ object SetupGuide {
 
     fun complete(state: SetupState): Boolean = items(state).none { it.status == StepStatus.Current }
 
+    fun stepsLeft(state: SetupState): Int = items(state).count { it.status == StepStatus.Current || it.status == StepStatus.Todo }
+
     private fun statusOf(step: SetupStep, done: Boolean?, current: SetupStep?): StepStatus = when {
         done == true -> StepStatus.Done
         step == current -> StepStatus.Current

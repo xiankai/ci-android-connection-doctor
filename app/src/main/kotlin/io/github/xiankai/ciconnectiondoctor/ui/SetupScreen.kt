@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,6 +31,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -119,6 +123,7 @@ fun SetupScreen(viewModel: GuardViewModel) {
     val autoStartOn by viewModel.startOnConnect.collectAsState()
     val state = setupState(device, privileged, target != null, autoStartOn)
     val items = SetupGuide.items(state)
+    var showAll by rememberSaveable { mutableStateOf(false) }
 
     BackHandler(onBack = viewModel::closeSetup)
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -139,12 +144,39 @@ fun SetupScreen(viewModel: GuardViewModel) {
             )
         },
     ) { padding ->
+        val focused = items.firstOrNull { it.status == StepStatus.Current }
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            if (SetupGuide.complete(state)) item { AllSetCard(viewModel) }
-            items(items, key = { it.step }) { item -> StepCard(item, viewModel) }
+            if (focused == null) {
+                item { AllSetCard(viewModel) }
+            } else {
+                item { FocusedStep(focused.step, SetupGuide.stepsLeft(state), viewModel) }
+            }
+            item {
+                TextButton(onClick = { showAll = !showAll }) { Text(if (showAll) "Hide all steps" else "Show all steps") }
+            }
+            if (showAll) items(items, key = { it.step }) { item -> StepCard(item, viewModel) }
+        }
+    }
+}
+
+@Composable
+private fun FocusedStep(step: SetupStep, stepsLeft: Int, viewModel: GuardViewModel) {
+    val text = setupText(step)
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
+    ) {
+        Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(
+                if (stepsLeft <= 1) "Last step" else "$stepsLeft steps left",
+                style = MaterialTheme.typography.labelLarge,
+            )
+            Text(text.title, style = MaterialTheme.typography.headlineSmall)
+            Text(text.text, style = MaterialTheme.typography.bodyLarge)
+            StepActions(step, text, viewModel, big = true)
         }
     }
 }
@@ -198,11 +230,25 @@ private fun StepCard(item: SetupItem, viewModel: GuardViewModel) {
 }
 
 @Composable
-private fun StepActions(step: SetupStep, text: SetupText, viewModel: GuardViewModel) {
+private fun StepActions(step: SetupStep, text: SetupText, viewModel: GuardViewModel, big: Boolean = false) {
     val association = rememberLauncherForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {
         viewModel.onAssociationResult(it.resultCode == Activity.RESULT_OK)
     }
     val launchAssociation = { sender: IntentSender -> association.launch(IntentSenderRequest.Builder(sender).build()) }
+    if (big) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            text.action?.let { label ->
+                Button(
+                    onClick = { act(step, viewModel, launchAssociation) },
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp),
+                ) { Text(label, style = MaterialTheme.typography.titleLarge) }
+            }
+            if (step == SetupStep.StartShizuku) {
+                OutlinedButton(onClick = viewModel::reconnectShizuku, modifier = Modifier.fillMaxWidth()) { Text("I've started it") }
+            }
+        }
+        return
+    }
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         text.action?.let { label -> Button(onClick = { act(step, viewModel, launchAssociation) }) { Text(label) } }
         if (step == SetupStep.StartShizuku) OutlinedButton(onClick = viewModel::reconnectShizuku) { Text("Refresh") }

@@ -86,4 +86,17 @@ class SetupGuideTest {
         assertEquals(StepStatus.Todo, statusOf(afterRestart, SetupStep.GrantPermission))
         assertFalse(SetupGuide.complete(afterRestart))
     }
+
+    @Test
+    fun stepsLeftCountsOnlyStepsStillToDo() {
+        assertEquals(SetupStep.entries.size, SetupGuide.stepsLeft(freshPhone))
+        assertEquals(4, SetupGuide.stepsLeft(afterRestart))
+        assertEquals(0, SetupGuide.stepsLeft(afterRestart.copy(shizukuRunning = true)))
+    }
+
+    @Test
+    fun anUncheckableStepIsNotCountedAsLeft() {
+        val state = afterRestart.copy(wifiConnected = null, wirelessDebuggingOn = null)
+        assertEquals(2, SetupGuide.stepsLeft(state))
+    }
 }

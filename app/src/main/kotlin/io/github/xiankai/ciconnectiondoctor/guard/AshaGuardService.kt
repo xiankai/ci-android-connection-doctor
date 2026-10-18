@@ -38,6 +38,7 @@ import kotlinx.coroutines.launch
 class AshaGuardService : Service() {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private var shownStep: GuideStep? = null
 
     private val shutdownReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -57,12 +58,12 @@ class AshaGuardService : Service() {
             IntentFilter(Intent.ACTION_SHUTDOWN),
             ContextCompat.RECEIVER_EXPORTED, // stack-reviewer-ignore: ACTION_SHUTDOWN is a protected broadcast only the system can send, and it is delivered to runtime-registered receivers only
         )
-        startForeground(NOTIFICATION_ID, buildNotification(Guard.state.value, PrivilegedBridge.status.value), ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE)
+        startForeground(NOTIFICATION_ID, buildNotification(Guard.state.value, PrivilegedBridge.status.value, ManualGuideRunner.step.value), ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE)
         scope.launch {
-            combine(Guard.state, PrivilegedBridge.status, ManualGuideRunner.step, AshaPauseFlag.paused) { state, status, _, _ -> state to status }
-                .distinctUntilChangedBy { (state, status) -> listOf(notificationStatus(state, status), state.mode, status) }
-                .collect { (state, status) ->
-                    getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, buildNotification(state, status))
+            combine(Guard.state, PrivilegedBridge.status, ManualGuideRunner.step, AshaPauseFlag.paused) { state, status, step, _ -> Triple(state, status, step) }
+                .distinctUntilChangedBy { (state, status, step) -> listOf(notificationStatus(state, status), state.mode, status, step) }
+                .collect { (state, status, step) ->
+                    getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, buildNotification(state, status, step))
                 }
         }
         scope.launch {
@@ -71,9 +72,6 @@ class AshaGuardService : Service() {
             }
                 .distinctUntilChanged()
                 .collect(::setGuideActive)
-        }
-        scope.launch {
-            ManualGuideRunner.step.collect(::showGuideStep)
         }
         scope.launch {
             Guard.state.map { it.running && it.done }
@@ -97,12 +95,7 @@ class AshaGuardService : Service() {
         }
     }
 
-    private fun showGuideStep(step: GuideStep?) {
-        val notifications = getSystemService(NotificationManager::class.java)
-        if (step == null) {
-            notifications.cancel(GUIDE_NOTIFICATION_ID)
-            return
-        }
+    private fun guideNotification(step: GuideStep, alert: Boolean): Notification {
         val text = stepText(step)
         val open = PendingIntent.getActivity(
             this,
@@ -110,7 +103,7 @@ class AshaGuardService : Service() {
             GuideStepActivity.intent(this, step),
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
-        val notification = NotificationCompat.Builder(this, GUIDE_CHANNEL_ID)
+        return NotificationCompat.Builder(this, GUIDE_CHANNEL_ID)
             .setContentTitle(text.title)
             .setContentText(text.text)
             .setStyle(NotificationCompat.BigTextStyle().bigText(text.text))
@@ -118,11 +111,11 @@ class AshaGuardService : Service() {
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_STATUS)
             .setOngoing(true)
+            .setOnlyAlertOnce(!alert)
             .setContentIntent(open)
             .addAction(NotificationCompat.Action(0, text.action, open))
             .addAction(NotificationCompat.Action(0, "Not now", actionIntent(ACTION_DISMISS_GUIDE)))
             .build()
-        notifications.notify(GUIDE_NOTIFICATION_ID, notification)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -156,7 +149,6 @@ class AshaGuardService : Service() {
         unregisterReceiver(shutdownReceiver)
         scope.cancel()
         ManualGuideRunner.stop()
-        getSystemService(NotificationManager::class.java).cancel(GUIDE_NOTIFICATION_ID)
         super.onDestroy()
     }
 
@@ -165,7 +157,13 @@ class AshaGuardService : Service() {
     private fun notificationStatus(state: GuardState, privileged: PrivilegedBridge.Status) =
         currentStatus(state, privileged, processorPicked = true, guideStep = ManualGuideRunner.step.value, pausedByGuard = AshaPauseFlag.paused.value)
 
-    private fun buildNotification(state: GuardState, privileged: PrivilegedBridge.Status): Notification {
+    private fun buildNotification(state: GuardState, privileged: PrivilegedBridge.Status, step: GuideStep?): Notification {
+        val newStep = step != shownStep
+        shownStep = step
+        return step?.let { guideNotification(it, alert = newStep) } ?: statusNotification(state, privileged)
+    }
+
+    private fun statusNotification(state: GuardState, privileged: PrivilegedBridge.Status): Notification {
         val text = homeText(notificationStatus(state, privileged))
         val modeAction = if (state.mode == Mode.HandedOff) {
             NotificationCompat.Action(0, getString(R.string.action_bring_sound_back), actionIntent(ACTION_BACK_TO_PHONE))
@@ -202,7 +200,6 @@ class AshaGuardService : Service() {
         private const val NOTIFICATION_ID = 1
         private val GUIDE_STATUSES = setOf(PrivilegedBridge.Status.ShizukuNotRunning, PrivilegedBridge.Status.PermissionRequired)
         const val GUIDE_CHANNEL_ID = "recovery_steps"
-        private const val GUIDE_NOTIFICATION_ID = 2
         private const val ACTION_DISMISS_GUIDE = "io.github.xiankai.ciconnectiondoctor.DISMISS_GUIDE"
         const val ACTION_HAND_OFF = "io.github.xiankai.ciconnectiondoctor.HAND_OFF"
         const val ACTION_BACK_TO_PHONE = "io.github.xiankai.ciconnectiondoctor.BACK_TO_PHONE"
