@@ -1,6 +1,8 @@
 package io.github.xiankai.ciconnectiondoctor.asha
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class HomeStatusTest {
@@ -19,7 +21,8 @@ class HomeStatusTest {
         guardSnapshot = LinkSnapshot(linkUp = linkUp, asha = asha, ashaAllowed = true),
     )
 
-    private fun assertStatus(expected: HomeStatus, inputs: HomeInputs) = assertEquals(expected, Home.status(inputs))
+    private fun assertStatus(expected: HomeStatus, inputs: HomeInputs) =
+        assertEquals(expected, Home.status(inputs).let { HomeStatus(it.headline, it.action) }) // stack-reviewer-ignore: these tests pin headline and action; offerHandOff and otherDeviceHint have their own tests below
 
     @Test
     fun noProcessorAsksToPickOne() {
@@ -127,5 +130,45 @@ class HomeStatusTest {
     @Test
     fun nothingKnownYetIsChecking() {
         assertStatus(HomeStatus(Headline.Checking), ready)
+    }
+
+    @Test
+    fun handOffIsOfferedWhileTheHelperIsReady() {
+        assertTrue(Home.status(ready.copy(publicLink = streaming)).offerHandOff)
+        assertTrue(Home.status(guarding(Phase.Paused(0, 0), linkUp = true)).offerHandOff)
+    }
+
+    @Test
+    fun handOffIsNotOfferedOnceHandedOff() {
+        assertFalse(Home.status(ready.copy(mode = Mode.HandedOff)).offerHandOff)
+    }
+
+    @Test
+    fun handOffIsNotOfferedWithoutAWorkingHelper() {
+        assertFalse(Home.status(helperDown.copy(publicLink = streaming)).offerHandOff)
+        assertFalse(Home.status(ready.copy(helperConnecting = true, publicLink = streaming)).offerHandOff)
+    }
+
+    @Test
+    fun handOffIsNotOfferedBeforeAProcessorIsPicked() {
+        assertFalse(Home.status(HomeInputs(processorPicked = false, helperReady = true)).offerHandOff)
+    }
+
+    @Test
+    fun waitingAfterTheGuardFoundNoLinkHintsAtAnotherDevice() {
+        val stuck = guarding(Phase.Paused(0, 0, warnedNoLink = true), linkUp = false).copy(guardFoundNoLink = true)
+        val status = Home.status(stuck)
+        assertEquals(Headline.WaitingForProcessor, status.headline)
+        assertTrue(status.otherDeviceHint)
+    }
+
+    @Test
+    fun plainWaitingGivesNoOtherDeviceHint() {
+        assertFalse(Home.status(ready.copy(publicLink = processorAway)).otherDeviceHint)
+    }
+
+    @Test
+    fun otherDeviceHintOnlyAppliesWhileWaiting() {
+        assertFalse(Home.status(ready.copy(publicLink = streaming, guardFoundNoLink = true)).otherDeviceHint)
     }
 }

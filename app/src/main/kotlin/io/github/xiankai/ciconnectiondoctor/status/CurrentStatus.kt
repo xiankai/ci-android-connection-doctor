@@ -4,6 +4,7 @@ import io.github.xiankai.ciconnectiondoctor.asha.GuideStep
 import io.github.xiankai.ciconnectiondoctor.asha.Home
 import io.github.xiankai.ciconnectiondoctor.asha.HomeInputs
 import io.github.xiankai.ciconnectiondoctor.asha.HomeStatus
+import io.github.xiankai.ciconnectiondoctor.asha.Phase
 import io.github.xiankai.ciconnectiondoctor.asha.PublicLinkState
 import io.github.xiankai.ciconnectiondoctor.guard.GuardState
 import io.github.xiankai.ciconnectiondoctor.privileged.PrivilegedBridge
@@ -19,6 +20,7 @@ fun currentStatus(
     HomeInputs(
         processorPicked = processorPicked,
         helperReady = privileged == PrivilegedBridge.Status.Ready || privileged == PrivilegedBridge.Status.Connecting,
+        helperConnecting = privileged == PrivilegedBridge.Status.Connecting,
         guardRunning = guard.running,
         mode = guard.mode,
         phase = guard.phase,
@@ -26,5 +28,13 @@ fun currentStatus(
         publicLink = publicLink,
         guideStep = guideStep,
         pausedByGuard = pausedByGuard,
+        guardFoundNoLink = guard.foundNoLink,
     ),
 )
+
+private val GuardState.foundNoLink: Boolean
+    get() = when (val current = phase) {
+        is Phase.Paused -> current.warnedNoLink || done
+        is Phase.Watching, is Phase.Verifying -> done
+        else -> false
+    }
