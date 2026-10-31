@@ -22,6 +22,7 @@
     <string name="headline_reconnecting_detail">Bringing phone sound back. This usually takes under a minute.</string>
     <string name="headline_waiting">Waiting for your processor</string>
     <string name="headline_waiting_detail">Phone sound comes back by itself when the processor is on and near the phone.</string>
+    <string name="headline_waiting_other_device_detail">Phone sound comes back by itself when the processor is on and near the phone. If it is, another phone, tablet or laptop may be holding on to it. Turn off Bluetooth on that device, or use its Cochlear app to let go of the processor.</string>
     <string name="headline_sound_off">Phone sound isn\'t coming through</string>
     <string name="headline_sound_off_detail">Your processor is nearby, but phone sound isn\'t reaching it.</string>
     <string name="headline_checking">Checking…</string>

@@ -15,11 +15,17 @@ enum class Headline {
 
 enum class HomeAction { PickProcessor, BringSoundBack, TurnOnBluetooth, OpenProcessorPage, StartHelper, FixNow }
 
-data class HomeStatus(val headline: Headline, val action: HomeAction? = null)
+data class HomeStatus(
+    val headline: Headline,
+    val action: HomeAction? = null,
+    val offerHandOff: Boolean = false,
+    val otherDeviceHint: Boolean = false,
+)
 
 data class HomeInputs(
     val processorPicked: Boolean,
     val helperReady: Boolean,
+    val helperConnecting: Boolean = false,
     val guardRunning: Boolean = false,
     val mode: Mode = Mode.Auto,
     val phase: Phase? = null,
@@ -27,13 +33,22 @@ data class HomeInputs(
     val publicLink: PublicLinkState? = null,
     val guideStep: GuideStep? = null,
     val pausedByGuard: Boolean = false,
+    val guardFoundNoLink: Boolean = false,
 )
 
 object Home {
 
     fun status(inputs: HomeInputs): HomeStatus = with(inputs) {
+        val status = headline()
+        status.copy(
+            offerHandOff = canHandOff,
+            otherDeviceHint = status.headline == Headline.WaitingForProcessor && guardFoundNoLink,
+        )
+    }
+
+    private fun HomeInputs.headline(): HomeStatus {
         val startHelperIfNeeded = HomeAction.StartHelper.takeUnless { helperReady }
-        when {
+        return when {
             !processorPicked -> HomeStatus(Headline.PickProcessor, HomeAction.PickProcessor)
             mode == Mode.HandedOff -> HomeStatus(Headline.HandedOff, startHelperIfNeeded ?: HomeAction.BringSoundBack)
             bluetoothOff -> HomeStatus(Headline.BluetoothOff, HomeAction.TurnOnBluetooth)
@@ -47,6 +62,9 @@ object Home {
             else -> HomeStatus(Headline.Checking)
         }
     }
+
+    private val HomeInputs.canHandOff: Boolean
+        get() = processorPicked && helperReady && !helperConnecting && mode == Mode.Auto
 
     private val HomeInputs.guardHasReading: Boolean
         get() = guardRunning && phase != null && guardSnapshot != null

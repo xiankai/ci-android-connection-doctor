@@ -19,7 +19,7 @@ fun homeText(status: HomeStatus): HomeText {
         Headline.HelperStopped -> Triple(R.string.headline_helper_stopped, R.string.headline_helper_stopped_detail, Tone.NeedsYou)
         Headline.SoundOn -> Triple(R.string.headline_sound_on, soundOnDetail(status), Tone.Good)
         Headline.Reconnecting -> Triple(R.string.headline_reconnecting, R.string.headline_reconnecting_detail, Tone.Busy)
-        Headline.WaitingForProcessor -> Triple(R.string.headline_waiting, R.string.headline_waiting_detail, Tone.Neutral)
+        Headline.WaitingForProcessor -> Triple(R.string.headline_waiting, waitingDetail(status), Tone.Neutral)
         Headline.SoundOff -> Triple(R.string.headline_sound_off, R.string.headline_sound_off_detail, Tone.NeedsYou)
         Headline.Checking -> Triple(R.string.headline_checking, null, Tone.Neutral)
     }
@@ -28,6 +28,9 @@ fun homeText(status: HomeStatus): HomeText {
 
 private fun soundOnDetail(status: HomeStatus): Int =
     if (status.action == HomeAction.StartHelper) R.string.headline_sound_on_helper_down_detail else R.string.headline_sound_on_detail
+
+private fun waitingDetail(status: HomeStatus): Int =
+    if (status.otherDeviceHint) R.string.headline_waiting_other_device_detail else R.string.headline_waiting_detail
 
 @StringRes
 private fun actionLabel(action: HomeAction): Int = when (action) {
