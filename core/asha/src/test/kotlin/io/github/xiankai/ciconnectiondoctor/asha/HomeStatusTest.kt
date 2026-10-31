@@ -22,7 +22,7 @@ class HomeStatusTest {
     )
 
     private fun assertStatus(expected: HomeStatus, inputs: HomeInputs) =
-        assertEquals(expected, Home.status(inputs).let { HomeStatus(it.headline, it.action) })
+        assertEquals(expected, Home.status(inputs).let { HomeStatus(it.headline, it.action) }) // stack-reviewer-ignore: these tests pin headline and action; offerHandOff and otherDeviceHint have their own tests below
 
     @Test
     fun noProcessorAsksToPickOne() {
