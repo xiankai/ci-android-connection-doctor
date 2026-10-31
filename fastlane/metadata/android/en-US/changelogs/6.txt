@@ -1,0 +1,6 @@
+• Plain-language home screen: one status, and a button only when there is something to do
+• Use with another device straight from the home screen
+• When the guard can't find the processor, it says another phone, tablet or laptop may be holding on to it
+• Status colours that read at a glance
+• One notification at a time, and setup shows one step at a time
+• Starting by itself is now part of setup
