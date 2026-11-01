@@ -9,6 +9,7 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.os.IBinder
 import android.os.Process
+import io.github.xiankai.ciconnectiondoctor.asha.LauncherLaunch
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.system.exitProcess
@@ -87,12 +88,22 @@ class HearingAidUserService : IHearingAidControl.Stub() {
     }
 
     override fun restartCochlearApp(): Boolean {
-        val launch = arrayOf("monkey", "-p", COCHLEAR_APP_PACKAGE, "-c", "android.intent.category.LAUNCHER", "1")
-        return stopCochlearApp() && Runtime.getRuntime().exec(launch).waitFor() == 0 // stack-reviewer-ignore: a false return is logged by the guard and restarts are rate-limited to one per 30 s
+        if (!stopCochlearApp()) return false
+        val component = LauncherLaunch.component(run(LauncherLaunch.resolveCommand(COCHLEAR_APP_PACKAGE)).output) ?: return false
+        val start = run(LauncherLaunch.startCommand(component))
+        return LauncherLaunch.started(start.exitCode, start.output) // stack-reviewer-ignore: a false return is logged by the guard and restarts are rate-limited to one per 30 s
     }
 
     override fun stopCochlearApp(): Boolean =
-        Runtime.getRuntime().exec(arrayOf("am", "force-stop", COCHLEAR_APP_PACKAGE)).waitFor() == 0
+        run(arrayOf("am", "force-stop", COCHLEAR_APP_PACKAGE)).exitCode == 0
+
+    private class CommandResult(val exitCode: Int, val output: String)
+
+    private fun run(command: Array<String>): CommandResult {
+        val process = ProcessBuilder(*command).redirectErrorStream(true).start()
+        val output = process.inputStream.bufferedReader().use { it.readText() }
+        return CommandResult(process.waitFor(), output)
+    }
 
     private fun device(address: String): BluetoothDevice = adapter.getRemoteDevice(address)
 
