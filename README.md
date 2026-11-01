@@ -29,7 +29,7 @@ The main screen shows one status ("Phone sound is on", "Reconnecting…", "Waiti
 
 The guard stops by itself, and its notification goes away, once streaming has held for 10 seconds, or after a minute with no link to the processor. While handed off, it keeps running so **Bring sound back to phone** stays in the notification.
 
-Shizuku stops whenever the phone reboots, and also when wireless debugging switches off unless USB debugging is on (see below). Start it again after either, or the guard can't act. With starting by itself on, the guard comes up by itself after a reboot. While the guard is running, it notices Shizuku coming back within a second. Otherwise, once Shizuku is running again, tap **Refresh** under **Details** in this app.
+Shizuku stops whenever the phone reboots, and also when wireless debugging switches off unless USB debugging is on (see below). Start it again after either, or the guard can't act. With starting by itself on, the guard comes up by itself after a reboot or an app update. While the guard is running, it notices Shizuku coming back within a second. Otherwise, once Shizuku is running again, tap **Refresh** under **Details** in this app.
 
 ## Starting Shizuku without a computer
 On Android 11 or newer, Shizuku pairs and starts on the phone itself through wireless debugging. No computer or USB cable is needed.

@@ -208,7 +208,7 @@ private fun Controls(
         }
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
-                Text("Start the guard at boot")
+                Text("Start the guard at boot and after an update")
                 Text(
                     "Without Shizuku it can only advise.",
                     style = MaterialTheme.typography.bodySmall,
