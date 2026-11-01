@@ -1,0 +1,1 @@
+• Restarting the Cochlear app no longer turns auto-rotate on
