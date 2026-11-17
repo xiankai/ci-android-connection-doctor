@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4.2.2
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-java@v4.7.1
         with:
@@ -23,6 +25,9 @@ jobs:
         run: |
           version=$(sed -n 's/^ *versionName = "\(.*\)"/\1/p' app/build.gradle.kts)
           test "v$version" = "$GITHUB_REF_NAME" || { echo "tag $GITHUB_REF_NAME does not match versionName $version"; exit 1; }
+
+      - name: Check versionCode is above the previous release
+        run: scripts/check-version-code.sh "$GITHUB_REF_NAME"
 
       - name: Decode the release keystore
         env:
