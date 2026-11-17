@@ -18,6 +18,7 @@ if [ -z "$previous_tag" ]; then
 fi
 
 previous=$(version_code_at "$previous_tag")
+test -n "$previous" || { echo "no versionCode in $gradle_file at $previous_tag"; exit 1; }
 if [ "$current" -le "$previous" ]; then
   echo "versionCode $current at $tag is not above $previous at $previous_tag: Obtainium could not install it over $previous_tag"
   exit 1
