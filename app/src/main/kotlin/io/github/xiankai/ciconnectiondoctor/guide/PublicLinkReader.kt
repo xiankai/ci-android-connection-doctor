@@ -10,6 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import androidx.core.content.ContextCompat
+import androidx.core.content.IntentCompat
 import io.github.xiankai.ciconnectiondoctor.asha.AshaState
 import io.github.xiankai.ciconnectiondoctor.asha.PublicLinkState
 
@@ -24,7 +25,7 @@ class PublicLinkReader(context: Context, private val address: String) {
 
     private val aclReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            val device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice::class.java)
+            val device = IntentCompat.getParcelableExtra(intent, BluetoothDevice.EXTRA_DEVICE, BluetoothDevice::class.java)
             if (device?.address == address) lastLinkDropMs = System.currentTimeMillis()
         }
     }
