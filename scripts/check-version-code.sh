@@ -15,7 +15,7 @@ current=$(version_code_at "$tag")
 
 highest=0
 highest_tag=
-for other in $(git tag -l 'v*' | grep -vxF "$tag" || true); do
+for other in $(git tag -l 'v*' | grep -vxF "$tag" || true); do  # stack-reviewer-ignore: every published v* tag is a release a phone may have installed, on any branch, and Android refuses a lower versionCode over it
   code=$(version_code_at "$other")
   if [ "$code" -gt "$highest" ]; then
     highest=$code
