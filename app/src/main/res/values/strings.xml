@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">CI Android Connection Doctor</string>
+    <string name="app_name">CI Connection Doctor</string>
 
     <string name="home_title">Phone sound</string>
     <string name="home_details">Details</string>

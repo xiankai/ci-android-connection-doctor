@@ -1,1 +1,1 @@
-CI Android Connection Doctor
+CI Connection Doctor
