@@ -1,4 +1,4 @@
-# CI Android Connection Doctor
+# CI Connection Doctor
 
 An unofficial Android helper that gets phone audio streaming (ASHA) to a Cochlear Nucleus or Kanso sound processor back within seconds after Bluetooth drops, plus one-tap hand-off to another device. Once set up, it starts by itself when the processor comes back and stops once streaming holds.
 
