@@ -1,0 +1,34 @@
+name: github-ci
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  github-ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout PR head
+        run: |
+          set -euo pipefail
+          git -c "http.extraHeader=Authorization: token ${RUN_TOKEN}" clone --quiet --no-tags --filter=blob:none \
+            "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git" /tmp/repo
+          git -C /tmp/repo fetch --quiet origin "refs/pull/${PR_NUMBER}/head:refs/heads/pr-head"
+          git -C /tmp/repo -c advice.detachedHead=false checkout --quiet pr-head
+        env:
+          RUN_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+
+      - name: Relay the GitHub-hosted CI run
+        run: |
+          set -euo pipefail
+          cd /tmp/repo
+          RELAY_SHA=$(git rev-parse HEAD) node tools/ci/github-ci-relay.mjs

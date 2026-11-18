@@ -120,6 +120,8 @@ Requires JDK 17+ and the Android SDK (see `local.properties` or `ANDROID_HOME`).
 
 A release build is signed when `RELEASE_KEYSTORE_PATH`, `RELEASE_KEYSTORE_PASSWORD`, `RELEASE_KEY_ALIAS` and `RELEASE_KEY_PASSWORD` are set, and unsigned otherwise. Pushing a `v<versionName>` tag runs `.github/workflows/release.yml`, which builds the signed APK and attaches it to a GitHub release. It fails when `versionCode` is not above the previous release's, since Android refuses an update with a lower or equal one. A tag pushed before those four Actions secrets exist fails the release instead of publishing an unsigned APK.
 
+CI runs on GitHub, not on this Forgejo copy: every branch push starts `.github/workflows/ci.yml`, and the push mirror is what carries the branch there. For a pull request here, `.forgejo/workflows/github-ci.yml` relays that run's result onto the PR — it polls `ci.yml`'s run for the PR head commit and fails the check when the run fails, or when the mirror has carried no branch at all.
+
 ## Reproducible builds
 The release APK builds byte-for-byte the same on any machine, so anyone can check that a published APK came from this source. Build the tag unsigned with JDK 17 and the Android SDK (build-tools 34.0.0), then compare it with the release APK, ignoring the signature, using [apksigcopier](https://github.com/obfusk/apksigcopier):
 
