@@ -64,9 +64,19 @@ while (Date.now() < deadline) {
   }
 
   if (result.rateLimitedUntil) {
-    console.log(`GitHub rate limit reached; waiting until ${new Date(result.rateLimitedUntil).toISOString()}`);
+    const resumeAt = result.rateLimitedUntil + 5_000;
+    const waitMs = resumeAt - Date.now();
+    if (resumeAt > deadline) {
+      console.error(`::error::GitHub rate limit runs until ${new Date(result.rateLimitedUntil).toISOString()}, past this job's deadline.`);
+      process.exit(1);
+    }
+    if (waitMs <= 0) {
+      console.error(`::error::GitHub reports a rate limit that reset at ${new Date(result.rateLimitedUntil).toISOString()} and refuses anyway.`);
+      process.exit(1);
+    }
+    console.log(`GitHub rate limit reached; waiting until ${new Date(resumeAt).toISOString()}`);
     const pausedAt = Date.now();
-    await waitUntil(result.rateLimitedUntil + 5_000);
+    await sleep(waitMs);
     noRunDeadline += Date.now() - pausedAt;
     continue;
   }
