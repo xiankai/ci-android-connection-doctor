@@ -158,8 +158,20 @@ fun SetupScreen(viewModel: GuardViewModel) {
                 TextButton(onClick = { showAll = !showAll }) { Text(if (showAll) "Hide all steps" else "Show all steps") }
             }
             if (showAll) items(items, key = { it.step }) { item -> StepCard(item, viewModel) }
+            item { Disclaimer() }
         }
     }
+}
+
+@Composable
+private fun Disclaimer() {
+    Text(
+        "This app is not made by, affiliated with or endorsed by Cochlear Ltd. It is not a medical device. " +
+            "Use it at your own risk; it never replaces your clinic, your audiologist or the official Cochlear app.",
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(vertical = 16.dp),
+    )
 }
 
 @Composable
