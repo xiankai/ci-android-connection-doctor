@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "io.github.xiankai.ciconnectiondoctor"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "io.github.xiankai.ciconnectiondoctor"
         minSdk = 31
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 9
         versionName = "0.2.3"
     }
