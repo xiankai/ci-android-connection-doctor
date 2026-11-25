@@ -36,17 +36,19 @@ jobs:
           test -n "$RELEASE_KEYSTORE_BASE64" || { echo "RELEASE_KEYSTORE_BASE64 secret is not set"; exit 1; }
           printf %s "$RELEASE_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
 
-      - name: Test and build the signed APK
+      - name: Test and build the signed APK and AAB
         env:
           RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
           RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
-        run: RELEASE_KEYSTORE_PATH="$RUNNER_TEMP/release.jks" ./gradlew --no-daemon :core:asha:test :app:assembleRelease
+        run: RELEASE_KEYSTORE_PATH="$RUNNER_TEMP/release.jks" ./gradlew --no-daemon :core:asha:test :app:assembleRelease :app:bundleRelease
 
       - name: Publish the GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           apk="$RUNNER_TEMP/${GITHUB_REPOSITORY#*/}-$GITHUB_REF_NAME.apk"
+          aab="${apk%.apk}.aab"
           cp app/build/outputs/apk/release/app-release.apk "$apk"
-          gh release create "$GITHUB_REF_NAME" "$apk" --verify-tag --generate-notes
+          cp app/build/outputs/bundle/release/app-release.aab "$aab"
+          gh release create "$GITHUB_REF_NAME" "$apk" "$aab" --verify-tag --generate-notes
