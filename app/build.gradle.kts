@@ -5,7 +5,11 @@ plugins {
 
 android {
     namespace = "io.github.xiankai.ciconnectiondoctor"
-    compileSdk = 36
+    compileSdk {
+        version = release(37) {
+            minorApiLevel = 1
+        }
+    }
 
     defaultConfig {
         applicationId = "io.github.xiankai.ciconnectiondoctor"

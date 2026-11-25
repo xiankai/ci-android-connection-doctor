@@ -31,6 +31,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import io.github.xiankai.ciconnectiondoctor.BondedDevice
@@ -43,7 +44,6 @@ import io.github.xiankai.ciconnectiondoctor.privileged.PrivilegedBridge
 import io.github.xiankai.ciconnectiondoctor.asha.Mode
 import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -222,7 +222,7 @@ private fun Controls(
 
 @Composable
 private fun LogRow(timestampMillis: Long, message: String) {
-    val time = SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault()).format(Date(timestampMillis))
+    val time = SimpleDateFormat("HH:mm:ss.SSS", LocalConfiguration.current.locales[0]).format(Date(timestampMillis))
     Column(modifier = Modifier.padding(vertical = 6.dp)) {
         Text(time, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Text(message, style = MaterialTheme.typography.bodyMedium)
