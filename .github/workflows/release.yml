@@ -19,7 +19,7 @@ jobs:
       - uses: actions/setup-java@v6.3.0
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "25"
           problem-matcher: true
 
       - name: Check the tag matches versionName
