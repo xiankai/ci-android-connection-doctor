@@ -15,8 +15,8 @@ android {
         applicationId = "io.github.xiankai.ciconnectiondoctor"
         minSdk = 31
         targetSdk = 36
-        versionCode = 9
-        versionName = "0.2.3"
+        versionCode = 10
+        versionName = "0.2.4"
     }
 
     val releaseKeystore = System.getenv("RELEASE_KEYSTORE_PATH")?.let(::file)
