@@ -25,6 +25,12 @@ It manages the Bluetooth link only. It never changes volume, program or audio so
 3. If the main screen says **Choose your sound processor**, tap **Choose processor** and pick it under **Sound processor**.
 4. Finish the last setup step, **Let this app start by itself**: tap **Turn on**, then **Allow** when Android asks to link the app to the processor. From then on the guard starts by itself whenever the processor connects or the phone restarts, even with the app closed. After a phone restart this starts working once you unlock the phone.
 
+<p>
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="240" alt="Main screen: Phone sound is on, with Use with another device">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="240" alt="Setup steps: 2 steps left, Allow this app in the helper app">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="240" alt="Details: Helper app (Shizuku) Ready, sound processor and guard status">
+</p>
+
 The main screen shows one status ("Phone sound is on", "Reconnecting…", "Waiting for your processor") and a button only when there is something to do, plus **Use with another device** once a processor is picked and Shizuku is ready (not while handed off). If the guard can't find the processor, the status adds that another phone, tablet or laptop may be holding on to it. Everything else (Shizuku, the processor picker, Start and Stop, the event log) is under **Details**. While the guard runs, its notification shows the same status, with **Use with another device** or **Bring sound back to phone**.
 
 The guard stops by itself, and its notification goes away, once streaming has held for 10 seconds, or after a minute with no link to the processor. While handed off, it keeps running so **Bring sound back to phone** stays in the notification.
@@ -68,10 +74,9 @@ Wireless debugging needs the phone connected to a Wi-Fi network, but any network
 1. Join any Wi-Fi network.
 2. Turn on Wireless debugging, and tap **Allow** if it asks about this network.
 3. Open Shizuku and tap **Start** under "Start via Wireless debugging".
-4. Open this app and tap **Refresh** under **Details**. The Shizuku card changes from "Not running" to "Ready".
+4. Open this app and tap **Refresh** under **Details**. The **Helper app (Shizuku)** card changes from "Not running" to "Ready".
 
-   <img src="docs/shizuku/app-not-running.png" width="360" alt="Shizuku card: Not running">
-   <img src="docs/shizuku/app-ready.png" width="360" alt="Shizuku card: Ready">
+   <img src="docs/shizuku/app-ready.png" width="360" alt="Helper app (Shizuku) card: Ready">
 5. Turn Wireless debugging off and leave the Wi-Fi if you like. With USB debugging on, Shizuku keeps running until the next restart.
 
 Shizuku runs inside Android's debugging service, and Android stops that service once neither USB debugging nor Wireless debugging is on. Shizuku stops with it. That happens when the phone leaves Wi-Fi with USB debugging off, since Wireless debugging then switches itself off, and when Developer options are turned off.
